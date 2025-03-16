@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Matcher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .upload-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .upload-box {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .upload-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .upload-box h3 {
+            margin-bottom: 1rem;
+            color: #3498db;
+        }
+
+        .file-input-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .file-input-container input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 1rem;
+            background: #f0f2f5;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #e8f4fd;
+        }
+
+        .analyze-button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .analyze-button:hover {
+            background: #2980b9;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .match-score {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: conic-gradient(#3498db var(--percentage), #f0f2f5 var(--percentage));
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .score-value {
+            position: relative;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .skills-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .skills-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .skills-section h4 {
+            color: #3498db;
+            margin-bottom: 1rem;
+        }
+
+        .skills-list {
+            list-style: none;
+        }
+
+        .skills-list li {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Resume Matcher</h1>
+            <p>Upload your resume and job requirements to find the perfect match</p>
+        </div>
+
+        <div class="upload-container">
+            <div class="upload-box">
+                <h3>Upload Resume</h3>
+                <p>Supported formats: PDF, DOCX</p>
+                <div class="file-input-container">
+                    <label class="file-input-label" for="resume-upload">
+                        <span>Choose Resume File</span>
+                    </label>
+                    <input type="file" id="resume-upload" accept=".pdf,.docx">
+                </div>
+            </div>
+
+            <div class="upload-box">
+                <h3>Upload Job Requirements</h3>
+                <p>Supported formats: PDF, DOCX</p>
+                <div class="file-input-container">
+                    <label class="file-input-label" for="requirements-upload">
+                        <span>Choose Requirements File</span>
+                    </label>
+                    <input type="file" id="requirements-upload" accept=".pdf,.docx">
+                </div>
+            </div>
+        </div>
+
+        <button id="analyze-btn" class="analyze-button">Analyze Match</button>
+
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner"></div>
+            <p>Analyzing documents...</p>
+        </div>
+
+        <div id="results" class="results-container" style="display: none;">
+            <div class="match-score">
+                <div class="score-circle">
+                    <span class="score-value" id="match-percentage">0%</span>
+                </div>
+                <h3>Overall Match</h3>
+            </div>
+
+            <div class="skills-comparison">
+                <div class="skills-section">
+                    <h4>Matching Skills</h4>
+                    <ul id="matching-skills-list" class="skills-list"></ul>
+                </div>
+                <div class="skills-section">
+                    <h4>Missing Skills</h4>
+                    <ul id="missing-skills-list" class="skills-list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInputs = document.querySelectorAll('input[type="file"]');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const resultsDiv = document.getElementById('results');
+
+    // Update file input labels when files are selected
+    fileInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            const label = e.target.parentElement.querySelector('span');
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validate file type
+                const fileType = file.name.split('.').pop().toLowerCase();
+                if (!['pdf', 'docx', 'doc'].includes(fileType)) {
+                    alert('Please upload only PDF or DOCX files');
+                    e.target.value = '';
+                    label.textContent = 'Choose File';
+                    return;
+                }
+                
+                // Validate file size (max 16MB)
+                if (file.size > 16 * 1024 * 1024) {
+                    alert('File size should not exceed 16MB');
+                    e.target.value = '';
+                    label.textContent = 'Choose File';
+                    return;
+                }
+
+                label.textContent = file.name;
+            } else {
+                label.textContent = 'Choose File';
+            }
+        });
+    });
+
+    analyzeBtn.addEventListener('click', async () => {
+        const resumeFile = document.getElementById('resume-upload').files[0];
+        const requirementsFile = document.getElementById('requirements-upload').files[0];
+
+        if (!resumeFile || !requirementsFile) {
+            alert('Please upload both resume and requirements documents');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('resume', resumeFile);
+        formData.append('requirements', requirementsFile);
+
+        try {
+            // Show loading spinner and hide results
+            loadingSpinner.style.display = 'block';
+            resultsDiv.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Server error');
+            }
+
+            displayResults(data);
+        } catch (error) {
+            console.error('Error analyzing documents:', error);
+            alert(`Error analyzing documents: ${error.message}`);
+        } finally {
+            // Hide loading spinner and enable button
+            loadingSpinner.style.display = 'none';
+            analyzeBtn.disabled = false;
+        }
+    });
+
+    function displayResults(results) {
+        resultsDiv.style.display = 'block';
+
+        // Update match percentage and circle progress
+        const matchPercentage = results.overall_match;
+        const scoreCircle = document.querySelector('.score-circle');
+        const percentageText = document.getElementById('match-percentage');
+        
+        scoreCircle.style.setProperty('--percentage', `${matchPercentage}%`);
+        percentageText.textContent = `${matchPercentage}%`;
+
+        // Update matching skills
+        const matchingSkillsList = document.getElementById('matching-skills-list');
+        matchingSkillsList.innerHTML = results.matching_skills
+            .map(skill => `<li>${skill}</li>`)
+            .join('') || '<li>No matching skills found</li>';
+
+        // Update missing skills
+        const missingSkillsList = document.getElementById('missing-skills-list');
+        missingSkillsList.innerHTML = results.missing_skills
+            .map(skill => `<li>${skill}</li>`)
+            .join('') || '<li>No missing skills</li>';
+    }
+});
+</script>
+</body>
+</style> 

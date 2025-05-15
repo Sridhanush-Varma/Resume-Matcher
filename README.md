@@ -85,5 +85,14 @@ Resume Matcher is an intelligent web application that leverages Natural Language
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+##  Attribution Requirement
+
+If you use this project in any form (website, app, service, or derivative code), you **must** include the following attribution in your documentation, website footer, or credits page:
+
+> Created by Sridhanush Varma – [https://github.com/Sridhanush-Varma/Resume-Matcher](https://github.com/Sridhanush-Varma/Resume-Matcher)
+
+Thank you for respecting the work that went into this project! 
+
+
 ## License
-This project is licensed under the GNU License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
